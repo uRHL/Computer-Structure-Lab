@@ -73,7 +73,7 @@ move $s5 $v0
 
 #pop $ra to restore it
 lw $ra ($sp)
-addu $ra $ra 4
+addu $sp $sp 4
 
 
 #A > B --> 0
