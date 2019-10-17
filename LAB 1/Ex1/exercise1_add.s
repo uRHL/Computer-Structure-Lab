@@ -32,8 +32,6 @@ main:
   syscall
   
 add:
-#move $t0 $a2
-#move $t1 $a3
 #checking positive values for M and N
 blez $a2 error
 blez $a3 error
@@ -44,13 +42,13 @@ lw $s1 ($sp)
 addu $sp $sp 4
 
 loop:
-#loop's body
+#loop body
 lw $t0 ($a0)
 lw $t1 ($a1)
 add $t2 $t0 $t1
 sw $t2 ($s1)
 
-#loop's control
+#loop control
 addu $a0 $a0 4
 addu $a1 $a1 4
 addu $s1 $s1 4

@@ -36,11 +36,11 @@ set:
 	#t0 (# elements not set) will be the counter of the loop 
 	mul $t0, $a1, $a2
 	
-	move $s0 $a0
+	move $t1 $a0
 	
 	loop:	
-	sw $zero ($s0) # matrix item = 0
-	add $s0 $s0 4 #next element of the array (int is 4byte long)
+	sw $zero ($t1) # matrix item = 0
+	add $t1 $t1 4 #next element of the array (int is 4byte long)
 	sub $t0 $t0 1 # counter -1 
 	bnez $t0 loop
 	li $v0 0 #function end successfully
