@@ -117,12 +117,13 @@
 			#poping the 5th parameter
 			lw $s0 ($sp)
 			addu $sp $sp 4
-			#It must holds that j<N
+			#It must holds that 0 <= j < N 
+			bltz $s0 errorExtract
 			bge $s0 $a3 errorExtract
 
 			#mul j*N = number of elements to skip
 			mul $t0 $s0 $a3 
-			#numer of bytes to skip
+			#numer of bytes to be skiped
 			mul $t0 $t0 4
 			#N>0, j>=0
 			addu $s1 $t0 $a1
@@ -131,12 +132,13 @@
 			#loop's body
 				#load from B
 				lw $t0 ($s1)
+				#save into A
 				sw $t0 ($a0)
 
 			#loop's control
 				addu $s1 $s1 4
 				addu $a0 $a0 4
-			#Number of elements not copied
+			#Number of elements not copied yet
 				subu $a3 $a3 1
 
 			bgtz $a3 loopExtract
@@ -147,7 +149,7 @@
 
 		errorExtract:
 			#funtion ended due to parameter errors
-			li $v0 1
+			li $v0 -1
 		returnExtract:
 			jr $ra
 #------ADD FUNCTION--------------------------------------------------------------
