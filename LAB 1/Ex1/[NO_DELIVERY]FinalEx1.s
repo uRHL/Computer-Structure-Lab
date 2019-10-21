@@ -11,8 +11,8 @@
     main:
     		#We get data from memory and call each function			
 			la $a0 matrixA
-            la $a1 M
-            la $a2 N
+            lw $a1 M
+            lw $a2 N
             la $a3 matrixB			
             subu $sp $sp 4
             la $t0 matrixC
@@ -20,24 +20,24 @@
             jal add					#calls add function
             
             la $a0 matrixA
-            la $a1 M
-            la $a2 N
+            lw $a1 M
+            lw $a2 N
             jal set					#calls set function
             
             la $a0 vectorA
             la $a1 matrixB
-            la $a2 M
-            la $a3 N
+            lw $a2 M
+            lw $a3 N
             la $t0 j
             subu $sp $sp 4
             sw $t0 ($sp)
-            jal extractRow			#calls extract row function
+            #jal extractRow			#calls extract row function
             
 			la $a0 matrixA
-            la $a1 M
-            la $a2 N
+            lw $a1 M
+            lw $a2 N
             la $a3 matrixB
-            jal moreZeros			#calls moreZeros function
+            #jal moreZeros			#calls moreZeros function
         
             b sucededEnd
 #------MORE ZEROS FUNCTION-------------------------------------------------------
@@ -159,14 +159,14 @@
             move $t3 $a3			#B[][]
             lw $t4 ($sp)			
             addu $sp $sp 4			#C[][] (from stack)
-            lw $t1 ($a1)			#M value
-            lw $t2 ($a2)			#N value
+            move $t1 $a1			#M value
+            move $t2 $a2 			#N value
                  
             ble $t2 $zero endFailAdd
             ble $t1 $zero endFailAdd 	#if (M||N<=0)
             
 			#We make some operations necesary for the loop
-            mul $t1 $t1 $t2			#M-->MÂ·N
+            mul $t1 $t1 $t2			#M-->M*N
             sub $t1 $t1 1
             move $t2 $zero			#N-->i=0
             
@@ -196,13 +196,13 @@
         set:	
         	#We load the values from input registers, and check the MN condition
         	move $t0 $a0			#A[][]
-            lw $t1 ($a1)			#M value
-            lw $t2 ($a2)			#N value 
+            move $t1 $a1			#M value
+            move $t2 $a2			#N value 
             ble $t2 $zero endFailSet
             ble $t1 $zero endFailSet 	#if (M||N<=0)
             
             #We make some operations necesary for the loop
-            mul $t1 $t1 $t2			#M-->MÃÂ·N
+            mul $t1 $t1 $t2			#M-->M*N
             sub $t1 $t1 1
             move $t2 $zero			#N-->i=0
             
