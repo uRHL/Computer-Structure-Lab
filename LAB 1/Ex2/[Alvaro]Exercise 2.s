@@ -28,7 +28,7 @@
             blez $t1 failEnd1	#if(M||N<=0)
             
            	#We make some operations necesary for the loop
-            mul $t0 $t0 $t1		#M·N
+            mul $t0 $t0 $t1		#M*N
             subu $t0 $t0 1
             li $t1 0			#i=0
             
@@ -36,18 +36,42 @@
             	move $t6 $t3	#V[] initial memory address
             	
                 #We load the float values
-                ##lw $t2 ($t2)
-                ##lwc1 $f0 $t2		#A[][] value
-                ##$f1				#infinite
-                ##$f2				#NaN
-                ##$f3				#Non normalized number
+                lwc1 $f0 0($t2)			#A[][] value
+                li.s $f2 00000000000000000000000000000000
+                c.eq.s $f0 $f2
+                bc1t v0					#b condition for v0 (zero)
+                li.s $f2 10000000000000000000000000000000
+                c.eq.s $f0 $f2
+                bc1t v0					#b condition for v0 (zero)
+				li.s $f2 01111111100000000000000000000000
+                c.eq.s $f0 $f2
+                bc1t v1					#b condition for v1 (infinite)      
+                li.s $f2 11111111100000000000000000000000
+                c.eq.s $f0 $f2
+                bc1t v2					#b condition for v2 (minus infinite)
+				c.gt.s $f0 $f2			#infinite
+                bc1t v3					#b condition for v3 (NaN)
+                li.s $f2 01111111100000000000000000000000
+                c.gt.s $f0 $f2			#infinite
+                bc1t label0				#b condition for v3 (NaN)
+                b continue0
+                label0:
+                	li.s $f2 11111111100000000000000000000000
+                    c.lt.s $f0 $f2			#infinite
+                	bc1t v3				#b condition for v3 (NaN)
+                continue0:
+				li.s $f2 00000000100000000000000000000000
+                c.lt.s $f0 $f2			#infinite
+                bc1t v4				#b condition for v3 (Non nomalized)
+                li.s $f2 10000000000000000000000000000000
+                c.gt.s $f0 $f2			#infinite
+                bc1t label1				#b condition for v3 (Non nomalized)	
+                b v5
+                label1:
+                	li.s $f2 10000000100000000000000000000000
+                	c.lt.s $f0 $f2			#infinite
+                	bc1t v4				#b condition for v3 (Non nomalized)	
                 
-                #b condition for v0 ($f4 zero)
-                #b condition for v1 ($f1 infinite)
-                	#operate minus infinite
-                #b condition for v2 ($f1 minus infinite)
-                #b condition for v3 ($f2 NaN)
-                #b condition for v4 ($f2 not notmalized)
                 b v5
                 v0:
                  	lw $t4 ($t6)
