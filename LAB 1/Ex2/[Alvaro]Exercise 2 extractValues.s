@@ -1,7 +1,7 @@
 .data
 	M: .word 3  
     N: .word 4
-    matrixA: .float 1.1, 10.2, 100.3, 10000.4, 10000.5, 1000000.6, 10000000.7, 100000000.8, 1000000000.9, 20.1, 200.2, 2000.3
+    matrixA: .float 0.0, 0,0, -0,0, -Infinity, Infinity, Infinity, NaN, NaN, NaN, NaN, 1.1, -1.2, 1.2345
     matrixB: .float 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
     matrixC: .float 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     vectorV: .word 0, 0, 0, 0, 0, 0
@@ -40,20 +40,16 @@
 					and $t6 $t5 $t4 		#logical and
 					srl $t6 $t6 23			#shift right logical to get the exponent
 					sub $t6 $t6 127					#exponent of the float number is in t1
-                    li $t7 127
-                    beq $t6 $zero case0		#Check that the exponent is = 0000 0000
-                    beq $t6 $t7 case1		#Check that the exponent is = 1111 1111
+                    #Now we make sort of a switch
+                    li $t7 -127
+                    beq $t6 $t7 case0		#Zero value (0.0 or -0.0)
+                    beq $t6 $zero case3		#Non nomalized value (1,X)
+                    li $t7 128
+                    beq $t6 $t7 case1		#Infinity, -Infinity and NaN values
                     b case2
                     
-                case0:
-                	sll $t6 $t5 9			#shift left logical to get the mantisa
-                    beq $t6 $zero v0                    
-                    		#The value is Non Normalized
-                    lw $t4 16($t1)
-                    addu $t4 $t4 1			#We stract the value from V[4] and add 1
-                    sw $t4 16($t1)
-                    b endCases
-                    v0:		#The value is zero
+                case0:                
+                   	#The value is zero
                     lw $t4 0($t1)
                     addu $t4 $t4 1			#We stract the value from V[0] and add 1
                     sw $t4 0($t1)
@@ -62,27 +58,34 @@
                 	sll $t6 $t5 9			#shift left logical to get the mantisa
                     beq $t6 $zero v12                   
                     		#The value is Not a Number NaN
-                    lw $t4 16($t1)
+                    lw $t4 12($t1)
                     addu $t4 $t4 1			#We stract the value from V[3] and add 1
-                    sw $t4 16($t1)
+                    sw $t4 12($t1)
                     b endCases
-                    v12:	#The value is infinite
+                    v12:	#The value is infinty OR -infinity
                     srl $t6 $t5 31
-                    beq $t6 $zero v2
-                    v1:
-                    lw $t4 8($t1)
+                    beq $t6 $zero v1
+                    b v2
+                    v1:		#The value is infinity
+                    lw $t4 4($t1)
                     addu $t4 $t4 1			#We stract the value from V[1] and add 1
-                    sw $t4 8($t1)
+                    sw $t4 4($t1)
                     b endCases
                     v2:		#The value is minus infinite
-                    lw $t4 12($t1)
+                    lw $t4 8($t1)
                     addu $t4 $t4 1			#We stract the value from V[2] and add 1
-                    sw $t4 12($t1)
+                    sw $t4 8($t1)
                     b endCases
                 case2:		#The values is normal number
                 	lw $t4 20($t1)
                     addu $t4 $t4 1			#We stract the value from V[1] and add 1
                     sw $t4 20($t1)
+                    b endCases
+                case3:
+                 		#The value is Non Normalized
+                    lw $t4 16($t1)
+                    addu $t4 $t4 1			#We stract the value from V[4] and add 1
+                    sw $t4 16($t1)
                     b endCases
                 endCases:
             	addu $t3 $t3 1	#i++
