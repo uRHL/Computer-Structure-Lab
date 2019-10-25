@@ -1,10 +1,10 @@
 .data
 	M: .word 3  
     N: .word 4
-    matrixA: .float 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.1, 2.2, 2.3
+    matrixA: .float 1.1, 10.2, 100.3, 10000.4, 10000.5, 1000000.6, 10000000.7, 100000000.8, 1000000000.9, 20.1, 200.2, 2000.3
     matrixB: .float 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
     matrixC: .float 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-    vectorV: .word 1, 1, 1, 1, 1, 1
+    vectorV: .word 0, 0, 0, 0, 0, 0
     
 .text
 	.globl main
@@ -13,7 +13,7 @@
     	la $a0 matrixA		#A[][]
 		lw $a1 M			#M
         lw $a2 N			#N
-        la $a2 vectorV		#V[]
+        la $a3 vectorV		#V[]
 
         jal extractValues
         sucededEnd:
@@ -33,21 +33,60 @@
             mul $t2 $t2 $t3		#M*N
             move $t3 $zero		#i=0
             
-            do:
-            	#Code form XEMA-------------------------------
-                #$f1 = A[i]
-                #$t0 = A[]
-                
-                			lwc1 $f1 ($t0)			#load word coprocessor 1
-							mfc1 $t1 $f1			#move from coprocessor 1
-							li $t2 0x7F800000		#infinite
-							and $t1 $t1 $t2			#logical and
-							srl $t1 $t1 23			#shift right logical
-							sub $t1 $t1 127					#exponent of the float number is in t1
-                #---------------------------------------------
+            do:                
+               		lwc1 $f0 0($t0)			#load word coprocessor 1
+					mfc1 $t5 $f0			#move from coprocessor 1
+					li $t4 0x7F800000		#infinite
+					and $t6 $t5 $t4 		#logical and
+					srl $t6 $t6 23			#shift right logical to get the exponent
+					sub $t6 $t6 127					#exponent of the float number is in t1
+                    li $t7 127
+                    beq $t6 $zero case0		#Check that the exponent is = 0000 0000
+                    beq $t6 $t7 case1		#Check that the exponent is = 1111 1111
+                    b case2
+                    
+                case0:
+                	sll $t6 $t5 9			#shift left logical to get the mantisa
+                    beq $t6 $zero v0                    
+                    		#The value is Non Normalized
+                    lw $t4 16($t1)
+                    addu $t4 $t4 1			#We stract the value from V[4] and add 1
+                    sw $t4 16($t1)
+                    b endCases
+                    v0:		#The value is zero
+                    lw $t4 0($t1)
+                    addu $t4 $t4 1			#We stract the value from V[0] and add 1
+                    sw $t4 0($t1)
+                    b endCases
+				case1:
+                	sll $t6 $t5 9			#shift left logical to get the mantisa
+                    beq $t6 $zero v12                   
+                    		#The value is Not a Number NaN
+                    lw $t4 16($t1)
+                    addu $t4 $t4 1			#We stract the value from V[3] and add 1
+                    sw $t4 16($t1)
+                    b endCases
+                    v12:	#The value is infinite
+                    srl $t6 $t5 31
+                    beq $t6 $zero v2
+                    v1:
+                    lw $t4 8($t1)
+                    addu $t4 $t4 1			#We stract the value from V[1] and add 1
+                    sw $t4 8($t1)
+                    b endCases
+                    v2:		#The value is minus infinite
+                    lw $t4 12($t1)
+                    addu $t4 $t4 1			#We stract the value from V[2] and add 1
+                    sw $t4 12($t1)
+                    b endCases
+                case2:		#The values is normal number
+                	lw $t4 20($t1)
+                    addu $t4 $t4 1			#We stract the value from V[1] and add 1
+                    sw $t4 20($t1)
+                    b endCases
+                endCases:
             	addu $t3 $t3 1	#i++
                 addu $t0 $t0 4	#A[]++
-                addu $t1 $t1 4	#V[]++
             while:
             	bge $t3 $t2 endExtractValues
             	b do
