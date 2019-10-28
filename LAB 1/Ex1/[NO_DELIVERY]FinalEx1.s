@@ -11,11 +11,12 @@
     main:
     		#We get data from memory and call each function			
 			la $a0 matrixA
-            lw $a1 M
-            lw $a2 N
-            la $a3 matrixB			
+			la $a1 matrixB	
+            la $a2 matrixC
+            lw $a3 M
+		
             subu $sp $sp 4
-            la $t0 matrixC
+            la $t0 N
             sw $t0 ($sp)
             jal add					#calls add function
             
@@ -31,16 +32,17 @@
             la $t0 j
             subu $sp $sp 4
             sw $t0 ($sp)
-            #jal extractRow			#calls extract row function
+            jal extractRow			#calls extract row function
             
 			la $a0 matrixA
-            lw $a1 M
-            lw $a2 N
-            la $a3 matrixB
-            #jal moreZeros			#calls moreZeros function
+            la $a1 matrixB
+            lw $a2 M
+            lw $a3 N
+            jal moreZeros			#calls moreZeros function
         
-            b sucededEnd
-#------MORE ZEROS FUNCTION-------------------------------------------------------
+            li $v0 10 
+            syscall
+#------MORE ZEROS FUNCTION--CHECK------------------------------------------------
 		moreZeros:
 		#Checking M and N bigger than 0
 			blez $a2 errorZero
@@ -60,7 +62,6 @@
 			move $a1 $a2
 			move $a2 $a3
 			li $a3 0
-
 			jal calcular
 
 		#if calcular returns -1 an error ocurred
@@ -70,9 +71,6 @@
 
 		#checking the number of zeros of matrix B
 		move $a0 $s1
-		#move $a2 $a3
-		#li $a3 0
-
 		jal calcular
 
 		#If calcular returns -1 an error ocurred
@@ -108,7 +106,7 @@
 		returnZero:
 		jr $ra
         
-#------EXTRACT ROW FUNCTION------------------------------------------------------			
+#------EXTRACT ROW FUNCTION--CHECK-----------------------------------------------			
 		extractRow:
 			#checking positive values for M and N
 			blez $a2 errorExtract
@@ -140,8 +138,8 @@
 				addu $a0 $a0 4
 			#Number of elements not copied yet
 				subu $a3 $a3 1
-
-			bgtz $a3 loopExtract
+			whileExtract:
+            	bgtz $a3 loopExtract
 
 			#function executed successfully
 			li $v0 0
@@ -152,16 +150,16 @@
 			li $v0 -1
 		returnExtract:
 			jr $ra
-#------ADD FUNCTION--------------------------------------------------------------
+#------ADD FUNCTION--CHECK-------------------------------------------------------
 		add:
         	#We load the values from input registers and stack, and check the MN condition
 			move $t0 $a0			#A[][]
-            move $t3 $a3			#B[][]
-            lw $t4 ($sp)			
-            addu $sp $sp 4			#C[][] (from stack)
-            move $t1 $a1			#M value
-            move $t2 $a2 			#N value
-                 
+            move $t3 $a1			#B[][]
+            move $t4 $a2			#C[][]
+            move $t1 $a3			#M
+            lw $t2 ($sp)			#N (from stack)
+            lw $t2 ($t2)
+            addu $sp $sp 4
             ble $t2 $zero endFailAdd
             ble $t1 $zero endFailAdd 	#if (M||N<=0)
             
@@ -179,12 +177,10 @@
             	addi $t2 $t2 1			#i++
                 addi $t0 $t0 4			#A[i++]
                 addi $t3 $t3 4			#B[i++]
-				addi $t4 $t4 4			#C[i++]
-                
+				addi $t4 $t4 4			#C[i++]              
             whileAdd:
             	ble $t2 $t1 doAdd
-                b endAdd
-        	
+                b endAdd      	
         endAdd:
             li $v0 0
         	jr $ra 
@@ -192,7 +188,7 @@
 			li $v0 -1
 			jr $ra
 
-#------SET FUNCTION--------------------------------------------------------------   	
+#------SET FUNCTION--CHECK--------------------------------------------------------   	
         set:	
         	#We load the values from input registers, and check the MN condition
         	move $t0 $a0			#A[][]
@@ -210,19 +206,13 @@
             doSet:              
             	sw $zero ($t0)		#A[i]=0                
             	addi $t2 $t2 1			#i++
-                addi $t0 $t0 4			#A[i++]
-                
+                addi $t0 $t0 4			#A[i++]             
             whileSet:
             	ble $t2 $t1 doSet
-                b endSet
-        
+                b endSet        
         endSet:
-            li $v0 1
+            li $v0 0
         	jr $ra
 		endFailSet:
-			li $v0 0
+			li $v0 -1
 			jr $ra
-#-------END FUNCTIONS------------------------------------------------------------           
-        sucededEnd:
-    		li $v0 10
-            syscall
