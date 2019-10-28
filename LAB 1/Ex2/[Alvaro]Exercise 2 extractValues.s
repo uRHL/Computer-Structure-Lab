@@ -1,7 +1,7 @@
 .data
 	M: .word 3  
     N: .word 4
-    matrixA: .float 0.0, 0,0, -0,0, -Infinity, Infinity, Infinity, NaN, NaN, NaN, NaN, 1.1, -1.2, 1.2345
+    matrixA: .float 0.0, 0.0, -0.0, -Infinity, Infinity, Infinity, NaN, NaN, NaN, NaN, 1.1, -1.2, 1.2345
     matrixB: .float 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
     matrixC: .float 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     vectorV: .word 0, 0, 0, 0, 0, 0
@@ -91,7 +91,7 @@
             	addu $t3 $t3 1	#i++
                 addu $t0 $t0 4	#A[]++
             while:
-            	bge $t3 $t2 endExtractValues
+            	bgt $t3 $t2 endExtractValues
             	b do
             endExtractValues:
             	li $v0 0
