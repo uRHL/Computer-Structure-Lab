@@ -18,21 +18,34 @@
 			move $a1 $a2
 			move $a2 $a3
 			li $a3 0
+		#pushing all the parameters into the stack before calling "calcular"
+			subu $sp $sp 16
+			sw $a0 ($sp)
+			sw $a1 4($sp)
+			sw $a2 8($sp)
+			sw $a3 12($sp)
+
 			jal calcular
 
 		#if calcular returns -1 an error ocurred
 		bltz $v0 errorZero
-		#If not store the result in S4
+		#Otherwise the result is stored in S4
 		move $s4 $v0
 
-		#checking the number of zeros of matrix B
+		#Computing the number of zeros of matrix B
 		move $a0 $s1
+		#pushing all the parameters that had changed after the previous call to "calcular"
+		sw $a0 ($sp)
+
 		jal calcular
 
 		#If calcular returns -1 an error ocurred
 		bltz $v0 errorZero
-		#If not store the result in S5
+		#Otherwise the result is stored in S5
 		move $s5 $v0
+
+		#poping the arguments since their values are not used they are not saved
+		addu $sp $sp 16
 
 		#pop $ra to restore it
 		lw $ra ($sp)
@@ -75,11 +88,11 @@
 			bltz $s0 errorExtract
 			bge $s0 $a3 errorExtract
 
-			#mul j*N = number of elements to skip
+			# j*N = number of elements to skip
 			mul $t0 $s0 $a3 
-			#numer of bytes to be skiped
+			# numElem * bytesPerElem = numer of bytes to be skiped
 			mul $t0 $t0 4
-			#N>0, j>=0
+			#Since N>0, j>=0 the addition is unsigned
 			addu $s1 $t0 $a1
 
 			loopExtract:
@@ -92,7 +105,7 @@
 			#loop's control
 				addu $s1 $s1 4
 				addu $a0 $a0 4
-			#Number of elements not copied yet
+			#Dcreasing the loop iterator (number of elements not copied yet)
 				subu $a3 $a3 1
 			whileExtract:
             	bgtz $a3 loopExtract
