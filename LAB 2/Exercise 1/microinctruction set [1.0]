@@ -118,11 +118,12 @@ jpz sigVal{
   nwords=1,
 	sigVal = inm(15,0),
 	{
-		(SE=1, Size=10000, Offset=0, T3, C4)
-    (MA=1, MB=11, SelCop=1100, MC=1, C6, SelP=11, M7=1, C7)
-  	(C=110, B=0, A0=1, T2, C5)
-  	(MA=1, MB=01, Selcop=1010, MC=1, C6)
-  	(T7, M2=0, C2)
+    (T2, C5)
+    (SE=1, Offset=00000, Size=10000, T3, C4)
+  	(MA=1, MB=01, SelCop=1010, MC=1, C6)
+  	(MA=1, MB=11, SelCop=1100, MC=1, SelP=11, M7=1, C7, T8, C4)
+  	(MADDR=fetch, B=0, A0=0, C=110)
+  	(T7, M2=0, C2, MA=1, MB=11, SelCop=1100, MC=1, SelP=11, M7=1, C7)
     (A0=1, B=1, C=0)
 	}
 }
@@ -145,10 +146,9 @@ Ret {
 	co=100010,
   nwords=1,
 	{
-		(SelA=11101, MR=1, T9, T9, C0)
-    (Ta, R, BW=11, M1=1, C1, SelA=11101, MR=1, MA=0, MB=10, SelCop=1010, MC=1, C6)
+		(SelA=11101, MR=1, T9, C0, MA=0, MB=10, SelCop=1010, MC=1, C6)
+    (Ta, R, BW=11, M1=1, C1, T7, SelC=11101, MR=1, LC)
   	(T1, M2=0, C2)
-  	(T7, SelC=11101, MC=1, LC)
     (A0=1, B=1, C=0)
 	}
 }
