@@ -1,0 +1,50 @@
+.data    
+		vector: .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 
+.text
+		addv: 
+    	##push $a0 and $a1
+      	#------addi $sp $sp -8
+        	ld A (SP)
+          addi_a -8
+          ld SP A
+ 				#------sw $a0 0($sp)
+        	ld IX (SP)
+        #------sw $a1 4($sp)
+        	ld IY (SP)
+ 			##$v0 will contain the addition of the vector elements
+ 				#------li $v0 0
+        	ldi HL 0
+ 			b1:
+      	#------beq $a0 $0 f1
+#Aquí no se como hacerlo
+ 				#------lw $t0 ($a1)
+          ld BC (IX)
+ 				#------add $v0 $v0 $t0
+        	ld A HL
+          add_A BC
+          ld HL A
+ 				#------addi $a1 $a1 4
+        	ld A IY
+          addi_a 4
+          ld IY A
+ 				#------addi $a0 $a0 -1
+        	ld A IX
+          addi_a -1
+          ld IX A
+ 				#------b b1
+   				call 10#número de b1
+ 			##pop $a1 and $a0
+ 			f1:
+      	#------lw $a0 0($sp)
+ 				#------lw $a1 4($sp)
+ 				#------addi $sp $sp 8
+ 			##return
+ 				#------jr $ra 
+ 			main: 
+ 				# call addv subroutine
+ 					#------li $a0 10
+ 					#------la $a1 vector
+ 					#------jal addv
+ 				# Finish the program
+ 					#------li $v0 10
+ 					#------syscall
