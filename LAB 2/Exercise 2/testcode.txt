@@ -21,7 +21,7 @@
           ld BC (IX)
  				#------add $v0 $v0 $t0
         	ld A HL
-          add_A BC
+          add_a BC
           ld HL A
  				#------addi $a1 $a1 4
         	ld A IY
@@ -32,19 +32,33 @@
           addi_a -1
           ld IX A
  				#------b b1
-   				call 10#número de b1
+   				call 0x08018
  			##pop $a1 and $a0
  			f1:
       	#------lw $a0 0($sp)
+        	ld IX (SP)
  				#------lw $a1 4($sp)
+        	ld A SP
+          addi_a 4
+          ld IX (A)
  				#------addi $sp $sp 8
+        	ld A SP
+          addi_a 8
+          ld SP A
  			##return
  				#------jr $ra 
+        	Ret
+#Esta no se como se hace
  			main: 
- 				# call addv subroutine
+ 				##call addv subroutine
  					#------li $a0 10
+          	ldi IX 10
  					#------la $a1 vector
+          	ldi IY 0x01000
  					#------jal addv
+            call 0x08000
  				# Finish the program
  					#------li $v0 10
+          	ldi HL 10
  					#------syscall
+          	Halt
