@@ -1,24 +1,29 @@
-.data    
+﻿.data    
 		vector: .word 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 
 .text
 		addv: 
     	##push $a0 and $a1
       	#------addi $sp $sp -8
-        	ld A (SP)
+        	ld A SP
           addi_a -8
           ld SP A
  				#------sw $a0 0($sp)
         	ld IX (SP)
         #------sw $a1 4($sp)
+        	ld A SP
+          addi_a 4
+          ld SP A
         	ld IY (SP)
  			##$v0 will contain the addition of the vector elements
  				#------li $v0 0
         	ldi HL 0
  			b1:
       	#------beq $a0 $0 f1
-#Aquí no se como hacerlo
+        	ld A IX
+          addi_a 0
+        	jpz 0x0805c
  				#------lw $t0 ($a1)
-          ld BC (IX)
+          ld BC (IY)
  				#------add $v0 $v0 $t0
         	ld A HL
           add_a BC
@@ -32,7 +37,7 @@
           addi_a -1
           ld IX A
  				#------b b1
-   				call 0x08018
+   				call 0x08024
  			##pop $a1 and $a0
  			f1:
       	#------lw $a0 0($sp)
@@ -48,7 +53,6 @@
  			##return
  				#------jr $ra 
         	Ret
-#Esta no se como se hace
  			main: 
  				##call addv subroutine
  					#------li $a0 10
